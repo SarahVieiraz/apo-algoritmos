@@ -1,7 +1,12 @@
 #include <stdio.h>
-#include <string.h>  // Para strcpy, se necessário
+#include <string.h>
+#include <windows.h> 
 
-// Struct global "dados"gcc apo_clientes.c -o apo
+void limpar_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 struct dados {
     int codigo;
     char nome[50];
@@ -10,16 +15,14 @@ struct dados {
     float salario;
 };
 
-// Variável global "cliente" do tipo struct dados (array para 5 clientes)
 struct dados cliente[5];
 
-// Função 1: Imprime todos os dados dos clientes
 void imprimir(struct dados c[]) {
     int i;
     printf("\n=== DADOS DOS CLIENTES ===\n");
     for (i = 0; i < 5; i++) {
         printf("Cliente %d:\n", i+1);
-        printf("Codigo: %d\n", c[i].codigo);
+        printf("Código: %d\n", c[i].codigo);
         printf("Nome: %s\n", c[i].nome);
         printf("Idade: %d\n", c[i].idade);
         printf("Sexo: %c\n", c[i].sexo);
@@ -28,7 +31,6 @@ void imprimir(struct dados c[]) {
     }
 }
 
-// Função 2: Calcula e retorna a somatória das idades
 int soma_idades(struct dados c[]) {
     int i, soma = 0;
     for (i = 0; i < 5; i++) {
@@ -38,32 +40,56 @@ int soma_idades(struct dados c[]) {
 }
 
 int main() {
+    SetConsoleOutputCP(65001);
     int i;
     float media;
+    char temp_nome[50];
 
-    // Entrada de dados para os 5 clientes (usando estrutura de repetição FOR)
     printf("=== CADASTRO DE 5 CLIENTES ===\n");
     for (i = 0; i < 5; i++) {
         printf("\nCliente %d:\n", i+1);
-        printf("Codigo: ");
-        scanf("%d", &cliente[i].codigo);
+        
+        printf("Código: ");
+        if (scanf("%d", &cliente[i].codigo) != 1) {
+            cliente[i].codigo = 0;
+            limpar_buffer();
+        } else {
+            limpar_buffer();
+        }
+        
         printf("Nome: ");
-        scanf(" %[^\n]", cliente[i].nome);  // Lê string com espaços
+        fgets(temp_nome, sizeof(temp_nome), stdin);
+        temp_nome[strcspn(temp_nome, "\n")] = 0;
+        strcpy(cliente[i].nome, temp_nome);
+        
         printf("Idade: ");
-        scanf("%d", &cliente[i].idade);
+        if (scanf("%d", &cliente[i].idade) != 1) {
+            cliente[i].idade = 0;
+            limpar_buffer();
+        } else {
+            limpar_buffer();
+        }
+        
         printf("Sexo (M/F): ");
         scanf(" %c", &cliente[i].sexo);
-        printf("Salario: ");
-        scanf("%f", &cliente[i].salario);
+        limpar_buffer();
+        
+        printf("Salário: ");
+        if (scanf("%f", &cliente[i].salario) != 1) {
+            cliente[i].salario = 0.0;
+            limpar_buffer();
+        } else {
+            limpar_buffer();
+        }
     }
 
-    // Chama a primeira função para imprimir
     imprimir(cliente);
 
-    // Chama a segunda função, calcula média e imprime
     int total_idades = soma_idades(cliente);
     media = (float)total_idades / 5;
-    printf("\nMedia de idade dos clientes: %.2f anos\n", media);
+    printf("\nMédia de idade dos clientes: %.2f anos\n", media);
+
+    system("pause");
 
     return 0;
 }
